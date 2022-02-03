@@ -1,8 +1,9 @@
-﻿#include <iostream>
-#include <windows.h>
-#include <gl/gl.h>
-#include <gl/glut.h>
-# define M_PI           3.14159265358979323846  /* pi */
+﻿#include<iostream>
+#include<windows.h>
+#include<vector>
+#include<gl/gl.h>
+#include<gl/glut.h>
+# define M_PI 3.14
 
 using namespace std;
 
@@ -19,7 +20,6 @@ public:
 	}
 };
 
-//Sun and Planets
 Planet* sun = new Planet(5.0, 0, 0, 0, 0, 0);
 Planet* mercury = new Planet(1.0, 7, 0, 4.74, 02.11, 0);
 Planet* venus = new Planet(1.5, 11, 0, 3.50, 177.0, 0);
@@ -31,15 +31,16 @@ Planet* uranus = new Planet(2.5, 45.5, 0, 0.68, 97.77, 0);
 Planet* neptune = new Planet(2.3, 53.6, 0, 0.54, 28.32, 0);
 Planet* pluto = new Planet(0.3, 59, 0, 0.47, 119.6, 0);
 
+GLuint sunTexture, mercuryTexture, venusTexture, earthTexture, marsTexture, jupiterTexture,
+		saturnTexture, uranusTexture, neptuneTexture, plutoTexture;
+
+GLUquadric *sunQ, *mercuryQ, *venusQ, *earthQ, *marsQ, *jupiterQ, *saturnQ,
+*uranusQ, *neptuneQ, *plutoQ;
+
 bool animating = false;
 bool bigOrbitActive = true;
-int changeCamera = 0;
 
-static GLfloat viewer[] = { 30.0, 20.0, 20.0 };
-static int x_pos_old = 0;       // poprzednia pozycja kursora myszy
-static int y_pos_old = 0;
-
-static int delta_x = 0;        // r�nica pomi�dzy pozycj� bie��c� i poprzedni� kursora myszy
+static int delta_x = 0;       
 static int delta_y = 0;
 static GLint status = 0;
 static GLfloat theta = 0.50;
@@ -49,17 +50,20 @@ static GLfloat delta_phi = 0.0;
 static GLfloat pix2angle = 0.0;
 static GLfloat radius = 50.0;
 
-float lightPos[] = { 0.0, 0.0, -75.0, 1.0 }; // Spotlight position.
-static float spotAngle = 40; // Spotlight cone half-angle.
-float spotDirection[] = { 1.0, 0.0, 0.0 }; // Spotlight direction.
-static float spotExponent = 1.0; // Spotlight exponent = attenuation factor.
+static GLfloat viewer[] = { 30.0, 20.0, 20.0 };
+static int x_pos_old = 0;      
+static int y_pos_old = 0;
+
+float lightPos[] = { 0.0, 0.0, -75.0, 1.0 }; 
+static float spotAngle = 360; 
+float spotDirection[] = { 1.0, 0.0, 0.0 }; 
+static float spotExponent = 1.0; 
 
 
 void setup(void) {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
 
-	//LIGHTING SETUP
 	glEnable(GL_LIGHTING);
 	float lightAmb[] = { 0.0, 0.0, 0.0, 1.0 };
 	float lightDifAndSpec[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -128,19 +132,16 @@ void RenderScene(void) {
 
 	//Sun
 	glPushMatrix();
+	glEnable(GL_TEXTURE_2D);
 	glRotatef(sun->orbit, 0.0, 1.0, 0.0);
 	glTranslatef(sun->distance, 0.0, 0.0);
 	glPushMatrix();
 	glRotatef(sun->axisTilt, 1.0, 0.0, 0.0);
+	glBindTexture(GL_TEXTURE_2D, sunTexture);
+	gluQuadricTexture(sunQ, 1);
 	glRotatef(sun->axisAni, 0.0, 1.0, 0.0);
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	/*glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, sunTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	gluQuadricTexture(quadric, 1);*/
 	gluSphere(quadric, sun->radius, 20.0, 20.0);
-	//glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glPopMatrix();
 
@@ -152,13 +153,7 @@ void RenderScene(void) {
 	glRotatef(mercury->axisTilt, 1.0, 0.0, 0.0);
 	glRotatef(mercury->axisAni, 0.0, 1.0, 0.0);
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	/*glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, merTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	gluQuadricTexture(quadric, 1);*/
 	gluSphere(quadric, mercury->radius, 20.0, 20.0);
-	//glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glPopMatrix();
 
@@ -170,13 +165,7 @@ void RenderScene(void) {
 	glRotatef(venus->axisTilt, 1.0, 0.0, 0.0);
 	glRotatef(venus->axisAni, 0.0, 1.0, 0.0);
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	/*glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, venTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	gluQuadricTexture(quadric, 1);*/
 	gluSphere(quadric, venus->radius, 20.0, 20.0);
-	//glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glPopMatrix();
 
@@ -188,13 +177,7 @@ void RenderScene(void) {
 	glRotatef(earth->axisTilt, 1.0, 0.0, 0.0);
 	glRotatef(earth->axisAni, 0.0, 1.0, 0.0);
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	/*glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, earTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	gluQuadricTexture(quadric, 1);*/
 	gluSphere(quadric, earth->radius, 20.0, 20.0);
-	//glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glPopMatrix();
 
@@ -206,13 +189,7 @@ void RenderScene(void) {
 	glRotatef(mars->axisTilt, 1.0, 0.0, 0.0);
 	glRotatef(mars->axisAni, 0.0, 1.0, 0.0);
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	/*glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, marTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	gluQuadricTexture(quadric, 1);*/
 	gluSphere(quadric, mars->radius, 20.0, 20.0);
-	//glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glPopMatrix();
 
@@ -224,13 +201,7 @@ void RenderScene(void) {
 	glRotatef(jupiter->axisTilt, 1.0, 0.0, 0.0);
 	glRotatef(jupiter->axisAni, 0.0, 1.0, 0.0);
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	/*glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, jupTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	gluQuadricTexture(quadric, 1);*/
 	gluSphere(quadric, jupiter->radius, 20.0, 20.0);
-	//glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glPopMatrix();
 
@@ -242,23 +213,15 @@ void RenderScene(void) {
 	glRotatef(saturn->axisTilt, 1.0, 0.0, 0.0);
 	glRotatef(saturn->axisAni, 0.0, 1.0, 0.0);
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	/*glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, satTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	gluQuadricTexture(quadric, 1);*/
 	gluSphere(quadric, saturn->radius, 20.0, 20.0);
 	glPopMatrix();
-	//glDisable(GL_TEXTURE_2D);
 	glPushMatrix();
 	glColor3ub(158, 145, 137);
 	glRotatef(-63.0, 1.0, 0.0, 0.0);
-	//glutWireTorus(0.2, 6.0, 30.0, 30.0);
 	glutWireTorus(0.4, 5.0, 30.0, 30.0);
 	glPopMatrix();
 	glPopMatrix();
-
-	glColor3ub(255, 255, 255);		//FIXES SHADING ISSUE
+	glColor3ub(255, 255, 255);		
 
 	//Uranus
 	glPushMatrix();
@@ -268,13 +231,7 @@ void RenderScene(void) {
 	glRotatef(uranus->axisTilt, 1.0, 0.0, 0.0);
 	glRotatef(uranus->axisAni, 0.0, 1.0, 0.0);
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	/*glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, uraTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	gluQuadricTexture(quadric, 1);*/
 	gluSphere(quadric, uranus->radius, 20.0, 20.0);
-	//glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glPopMatrix();
 
@@ -286,13 +243,7 @@ void RenderScene(void) {
 	glRotatef(neptune->axisTilt, 1.0, 0.0, 0.0);
 	glRotatef(neptune->axisAni, 0.0, 1.0, 0.0);
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	/*glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, nepTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	gluQuadricTexture(quadric, 1);*/
 	gluSphere(quadric, neptune->radius, 20.0, 20.0);
-	//glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glPopMatrix();
 
@@ -304,37 +255,9 @@ void RenderScene(void) {
 	glRotatef(pluto->axisTilt, 1.0, 0.0, 0.0);
 	glRotatef(pluto->axisAni, 0.0, 1.0, 0.0);
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	/*glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, pluTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	gluQuadricTexture(quadric, 1);*/
 	gluSphere(quadric, pluto->radius, 20.0, 20.0);
-	//glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glPopMatrix();
-
-	/*glPushMatrix();
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, staTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glBegin(GL_POLYGON);
-	glTexCoord2f(-1.0, 0.0); glVertex3f(-200, -200, -100);
-	glTexCoord2f(2.0, 0.0); glVertex3f(200, -200, -100);
-	glTexCoord2f(2.0, 2.0); glVertex3f(200, 200, -100);
-	glTexCoord2f(-1.0, 2.0); glVertex3f(-200, 200, -100);
-	glEnd();
-
-	glBindTexture(GL_TEXTURE_2D, staTexture);
-	glBegin(GL_POLYGON);
-	glTexCoord2f(0.0, 0.0); glVertex3f(-200, -83, 200);
-	glTexCoord2f(8.0, 0.0); glVertex3f(200, -83, 200);
-	glTexCoord2f(8.0, 8.0); glVertex3f(200, -83, -200);
-	glTexCoord2f(0.0, 8.0); glVertex3f(-200, -83, -200);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-	glPopMatrix();*/
 
 	glutSwapBuffers();
 }
@@ -434,29 +357,23 @@ void keyInput(unsigned char key, int x, int y) {
 		if (animating) animate(1);
 		break;
 	case 'o': bigOrbitActive = !bigOrbitActive; break;
-	case '1': changeCamera = 0; break;
-	case '2': changeCamera = 1; break;
-	case '3': changeCamera = 2; break;
 	}
 	glutPostRedisplay();
 }
 
 void intructions(void) {
-	cout << "a to play/pause the simulation." << endl;
-	cout << "ESC to exit the simulation." << endl;
-	cout << "o to show/hide Big Orbital Trails." << endl;
-	cout << "1, 2 and 3 to change camera angles." << endl;
+	cout << "Wcisnij 'a' w celu wlaczenia/wylaczenia animiacji." << endl;
+	cout << "Wcisnij ESC aby wyjsc z symualcji." << endl;
 }
 
 int main() {
 	intructions();
 
-	/*glutInitContextVersion(4, 2);
-	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);*/
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(800, 800);
-	glutCreateWindow("Solar System");
+	glutCreateWindow("Uklad Sloneczny");
+	init();
 	glutDisplayFunc(RenderScene);
 	glutReshapeFunc(ChangeSize);
 	glutMouseFunc(Mouse);
@@ -468,4 +385,151 @@ int main() {
 	glutMainLoop();
 
 	return 0;
+}
+
+void init() {
+	const std::vector<GLuint*> textures = { &sunTexture, &mercuryTexture, &venusTexture, &earthTexture, &marsTexture, &jupiterTexture, &saturnTexture,
+									&uranusTexture, &neptuneTexture, &plutoTexture };
+
+	const std::vector<const char*> directories = { "sun.tga", "mercury.tga", "venus.tga", "earth.tga",
+										   "mars.tga", "jupiter.tga", "saturn.tga", "uranus.tga",
+										   "neptune.tga", "pluto.tga" };
+	glEnable(GL_NORMALIZE);
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
+	sunQ = gluNewQuadric();
+	mercuryQ = gluNewQuadric();
+	venusQ = gluNewQuadric();
+	earthQ = gluNewQuadric();
+	marsQ = gluNewQuadric();
+	jupiterQ = gluNewQuadric();
+	saturnQ = gluNewQuadric();
+	uranusQ = gluNewQuadric();
+	neptuneQ = gluNewQuadric();
+	plutoQ = gluNewQuadric();
+
+	for (int i = 0; i < textures.size(); i++) {
+		*textures[i] = load_texture(directories[i]);
+	}
+}
+
+GLuint load_texture(std::string fileName) {
+	GLuint t = 0;
+	glGenTextures(1, &t);
+
+	GLint image_width = 0;
+	GLint image_height = 0;
+	GLint image_components = 0;
+	GLenum image_format = 0;
+
+	GLbyte* image_bytes = LoadTGAImage(fileName.c_str(),
+		&image_width,
+		&image_height,
+		&image_components,
+		&image_format);
+	glBindTexture(GL_TEXTURE_2D, t);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+	glTexImage2D(GL_TEXTURE_2D,
+		0,
+		image_components,
+		image_width,
+		image_height,
+		0,
+		image_format,
+		GL_UNSIGNED_BYTE,
+		image_bytes);
+
+	free(image_bytes);
+	return t;
+}
+
+GLbyte* LoadTGAImage(const char* FileName, GLint* ImWidth, GLint* ImHeight, GLint* ImComponents, GLenum* ImFormat)
+{
+	/*************************************************************************************/
+	// Struktura dla nagłówka pliku  TGA
+#pragma pack(1)           
+	typedef struct {
+		GLbyte    idlength;
+		GLbyte    colormaptype;
+		GLbyte    datatypecode;
+		unsigned short    colormapstart;
+		unsigned short    colormaplength;
+		unsigned char     colormapdepth;
+		unsigned short    x_orgin;
+		unsigned short    y_orgin;
+		unsigned short    width;
+		unsigned short    height;
+		GLbyte    bitsperpixel;
+		GLbyte    descriptor;
+	}TGAHEADER;
+#pragma pack(8)
+
+	FILE* pFile;
+	TGAHEADER tgaHeader;
+	unsigned long lImageSize;
+	short sDepth;
+	GLbyte* pbitsperpixel = NULL;
+	/*************************************************************************************/
+	// Wartości domyślne zwracane w przypadku błędu
+	*ImWidth = 0;
+	*ImHeight = 0;
+	*ImFormat = GL_BGR_EXT;
+	*ImComponents = GL_RGB8;
+	pFile = fopen(FileName, "rb");
+	if (pFile == NULL)
+		return NULL;
+	/*************************************************************************************/
+	// Przeczytanie nagłówka 
+	fread(&tgaHeader, sizeof(TGAHEADER), 1, pFile);
+	/*************************************************************************************/
+	// Odczytanie szerokości, wysokości i głębi obrazu
+	*ImWidth = tgaHeader.width;
+	*ImHeight = tgaHeader.height;
+	sDepth = tgaHeader.bitsperpixel / 8;
+	/*************************************************************************************/
+	// Sprawdzenie, czy głębia spełnia założone warunki (8, 24, lub 32 bity)
+	if (tgaHeader.bitsperpixel != 8 && tgaHeader.bitsperpixel != 24 && tgaHeader.bitsperpixel != 32)
+		return NULL;
+	/*************************************************************************************/
+	// Obliczenie rozmiaru bufora w pamięci
+	lImageSize = tgaHeader.width * tgaHeader.height * sDepth;
+	/*************************************************************************************/
+	// Alokacja pamięci dla danych obrazu
+	pbitsperpixel = (GLbyte*)malloc(lImageSize * sizeof(GLbyte));
+
+	if (pbitsperpixel == NULL)
+		return NULL;
+
+	if (fread(pbitsperpixel, lImageSize, 1, pFile) != 1) {
+		free(pbitsperpixel);
+		return NULL;
+	}
+	/*************************************************************************************/
+	// Ustawienie formatu OpenGL
+	switch (sDepth)
+	{
+	case 3:
+		*ImFormat = GL_BGR_EXT;
+		*ImComponents = GL_RGB8;
+		break;
+	case 4:
+		*ImFormat = GL_BGRA_EXT;
+		*ImComponents = GL_RGBA8;
+		break;
+	case 1:
+		*ImFormat = GL_LUMINANCE;
+		*ImComponents = GL_LUMINANCE8;
+		break;
+
+	};
+	fclose(pFile);
+	return pbitsperpixel;
 }
